@@ -9,12 +9,13 @@ import {
 } from "angularfire2/firestore";
 import * as firebase from "firebase/app";
 import { Observable } from "rxjs/Observable";
+import { of } from "rxjs";
 import { switchMap } from "rxjs/operators";
 import { User } from "./../models/user";
 
 @Injectable()
 export class AuthService {
-  user: Observable<User | null>;
+  private user: Observable<User | null>;
 
   constructor(
     private router: Router,
@@ -30,7 +31,7 @@ export class AuthService {
     });
   }
 
-  siginUp(email: string, password: string) {
+  siginUp(name: string, email: string, password: string) {
     return this.afAuth.auth
       .createUserWithEmailAndPassword(email, password)
       .then(user => {
@@ -54,17 +55,49 @@ export class AuthService {
     });
   }
 
-  private updateUserData(user: User) {
-    const docUser: AngularFirestoreDocument<User> = this.afStore.doc(
-      `users/${user.uid}`
-    );
+  public createUserData(user: User) {
+    this.afStore.collection("items").add(user.uid);
     const data: User = {
       uid: user.uid,
       email: user.email,
       name: user.name || "",
+      gid: user.gid,
+      photoURL: user.photoURL || "",
+      nomi: user.nomi
+    };
+    this.afStore.doc(`items/${user.uid}`).set(data);
+  }
+
+  public updateUserData(user: User) {
+    var docUser: AngularFirestoreDocument<User> = this.afStore.doc(
+      `items/${user.uid}`
+    );
+
+    const data: User = {
+      uid: user.uid,
+      email: user.email,
+      name: user.name || "",
+      gid: user.gid,
       photoURL: user.photoURL || "",
       nomi: user.nomi
     };
     return docUser.set(data);
+  }
+
+  public getUserData(user: User) {
+    const docUser: AngularFirestoreDocument<User> = this.afStore.doc(
+      `items/${user.uid}`
+    );
+
+    var tmp = docUser.valueChanges();
+    const rtnValue: User = {
+      uid: tmp.uid,
+      email: tmp.email,
+      name: user.name || "",
+      gid: user.gid,
+      photoURL: user.photoURL || "",
+      nomi: user.nomi
+    };
+    return ur;
   }
 }
