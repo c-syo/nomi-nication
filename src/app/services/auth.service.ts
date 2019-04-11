@@ -91,7 +91,7 @@ export class AuthService {
           this.currentUserData.photoURL = result.photoURL;
           this.currentUserData.nomi = result.nomi;
           this.currentObUserData = this.tmpObUserData;
-          if (this.currentUserData.uid != "") {
+          if (this.currentUserData.uid != "" && this.stComponent) {
             console.log("fire");
             this.stComponent.fireLogin();
           }
