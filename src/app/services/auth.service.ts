@@ -29,7 +29,7 @@ export class AuthService {
   };
   private currentObUserData: Observable<User>;
   private currentUserData: User;
-  private user: User;
+  private tmpObUserData: Observable<User>;
 
   constructor() {}
 
@@ -37,8 +37,8 @@ export class AuthService {
     this.stComponent = stComponent;
   }
 
-  getCurrentUserData() {
-    return this.currentUserData;
+  getCurrentObUserData() {
+    return this.getUserData(this.currentUserData);
   }
 
   siginUp(name: string, email: string, password: string) {
@@ -51,13 +51,23 @@ export class AuthService {
       photoURL: this.nullUserData.photoURL,
       nomi: this.nullUserData.nomi
     };
+    this.currentUserData = Object.assign({}, this.nullUserData);
+    this.tmpObUserData = this.getUserData(data);
+    if (this.tmpObUserData != undefined) {
+      this.tmpObUserData.subscribe(result => {
+        if (result) {
+          this.currentUserData = Object.assign({}, this.nullUserData);
+        }
+      });
+    }
+    if (this.tmpObUserData.uid == "") {
+      return this.tmpObUserData;
+    }
     this.createUserData(data);
-    this.currentObUserData = this.getUserData(data);
-    this.stComponent.fireLogin();
-    return this.currentObUserData;
+    return this.login(email, password);
   }
 
-  login(email: string, password: string) {
+  login(email: string, password: string): Observable<User> {
     const data: User = {
       uid: email,
       email: email,
@@ -67,8 +77,29 @@ export class AuthService {
       photoURL: this.nullUserData.photoURL,
       nomi: this.nullUserData.nomi
     };
-    this.currentObUserData = this.getUserData(data);
-    this.stComponent.fireLogin();
+    this.currentUserData = Object.assign({}, this.nullUserData);
+    this.tmpObUserData = this.getUserData(data);
+    this.currentObUserData = this.tmpObUserData;
+    if (this.tmpObUserData != undefined) {
+      this.tmpObUserData.subscribe(result => {
+        if (result.password === password) {
+          this.currentUserData.uid = result.uid;
+          this.currentUserData.email = result.email;
+          this.currentUserData.password = result.password;
+          this.currentUserData.name = result.name;
+          this.currentUserData.gid = result.gid;
+          this.currentUserData.photoURL = result.photoURL;
+          this.currentUserData.nomi = result.nomi;
+          this.currentObUserData = this.tmpObUserData;
+          if (this.currentUserData.uid != "") {
+            console.log("fire");
+            this.stComponent.fireLogin();
+          }
+        } else {
+          this.currentObUserData = of(this.nullUserData);
+        }
+      });
+    }
     return this.currentObUserData;
   }
   /*

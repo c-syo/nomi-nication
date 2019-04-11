@@ -22,21 +22,22 @@ export class SlidetoggleComponent {
   }
 
   public fireLogin() {
-    this.user = this.authService.getCurrentUserData();
-    console.log(this.user);
-    if (this.user != undefined) {
-      console.log(this.user.uid);
-      if (this.user.uid != "") {
-        //TODO: slidetoggleの有効化
-        console.log("ログインした");
+    this.authService.getCurrentObUserData().subscribe(result => {
+      if (result != undefined) {
+        console.log(result.uid);
+        if (result.uid != "") {
+          //TODO: slidetoggleの有効化
+          console.log("ログインした");
+        }
       }
-    }
+    });
   }
 
   onChanged(e) {
+    /*
     console.log("a");
     if (this.user == undefined) {
-      this.user = this.authService.getCurrentUserData();
+      this.user = this.authService.getCurrentObUserData();
     }
     console.log(this.user);
     console.log(this.user.uid);
@@ -55,5 +56,6 @@ export class SlidetoggleComponent {
       console.log(this.user.uid);
       this.authService.updateUserData(this.user);
     }
+    */
   }
 }

@@ -14,7 +14,7 @@ export class AuthComponent {
 
   reciver(email_: string, password_: string) {
     this.authService.login(email_, password_).subscribe(result => {
-      if (result.uid === "") {
+      if (result.uid == "") {
         //ログイン失敗
         console.log("ログイン失敗");
       } else {
