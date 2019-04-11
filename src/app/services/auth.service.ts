@@ -27,7 +27,8 @@ export class AuthService {
     photoURL: "",
     nomi: 0
   };
-  private currentUserData: Observable<User>;
+  private currentObUserData: Observable<User>;
+  private currentUserData: User;
   private user: User;
 
   constructor() {}
@@ -51,9 +52,9 @@ export class AuthService {
       nomi: this.nullUserData.nomi
     };
     this.createUserData(data);
-    this.currentUserData = this.getUserData(data);
+    this.currentObUserData = this.getUserData(data);
     this.stComponent.fireLogin();
-    return this.currentUserData;
+    return this.currentObUserData;
   }
 
   login(email: string, password: string) {
@@ -66,9 +67,9 @@ export class AuthService {
       photoURL: this.nullUserData.photoURL,
       nomi: this.nullUserData.nomi
     };
-    this.currentUserData = this.getUserData(data);
+    this.currentObUserData = this.getUserData(data);
     this.stComponent.fireLogin();
-    return this.currentUserData;
+    return this.currentObUserData;
   }
   /*
   logout() {

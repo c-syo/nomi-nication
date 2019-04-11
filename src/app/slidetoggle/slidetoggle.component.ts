@@ -15,7 +15,7 @@ export class SlidetoggleComponent {
   //
   login = true;
   st = false;
-  user: Observable<User>;
+  user: User;
 
   constructor(private authService: AuthService) {
     this.authService.setSlidetoggleComponent(this);
@@ -23,33 +23,37 @@ export class SlidetoggleComponent {
 
   public fireLogin() {
     this.user = this.authService.getCurrentUserData();
+    console.log(this.user);
     if (this.user != undefined) {
-      this.user.subscribe(result => {
-        if (result.uid != "") {
-          //TODO: slidetoggleの有効化
-        }
-      });
+      console.log(this.user.uid);
+      if (this.user.uid != "") {
+        //TODO: slidetoggleの有効化
+        console.log("ログインした");
+      }
     }
   }
 
   onChanged(e) {
-    this.authService.getCurrentUserData().subscribe(result => {
-      var res = result;
-      console.log(res.uid);
-      if (res.uid === "") {
-        //ログインしていない
-        console.log("ログインしていない");
+    console.log("a");
+    if (this.user == undefined) {
+      this.user = this.authService.getCurrentUserData();
+    }
+    console.log(this.user);
+    console.log(this.user.uid);
+    if (this.user.uid === "") {
+      //ログインしていない
+      console.log("ログインしていない");
+    } else {
+      console.log("b");
+      if (e.target.checked) {
+        this.user.nomi = 1;
+        console.log("on");
       } else {
-        if (e.target.checked) {
-          res.nomi = 1;
-          console.log("on");
-        } else {
-          res.nomi = 0;
-          console.log("off");
-        }
-        console.log(res.uid);
-        this.authService.updateUserData(res);
+        this.user.nomi = 0;
+        console.log("off");
       }
-    });
+      console.log(this.user.uid);
+      this.authService.updateUserData(this.user);
+    }
   }
 }
