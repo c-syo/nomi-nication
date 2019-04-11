@@ -11,11 +11,13 @@ import { Observable } from "rxjs/Observable";
 import { of } from "rxjs";
 import { switchMap } from "rxjs/operators";
 import { User } from "./../models/user";
+import { SlidetoggleComponent } from "../slidetoggle/slidetoggle.component";
 
 @Injectable()
 export class AuthService {
   private afStore: AngularFirestore;
   private afAuth: AngularFireAuth;
+  private stComponent: SlidetoggleComponent;
   private nullUserData: User = {
     uid: "",
     email: "",
@@ -25,65 +27,48 @@ export class AuthService {
     photoURL: "",
     nomi: 0
   };
-  private user: Observable<User>;
+  private currentUserData: Observable<User>;
+  private user: User;
 
   constructor() {}
 
-  /*   siginUp(name: string, email: string, password: string) {
-    return this.afAuth.auth
-      .createUserWithEmailAndPassword(email, password)
-      .then(user => {
-        return this.updateUserData(user);
-      })
-      .catch(err => console.log(err));
+  setSlidetoggleComponent(stComponent: SlidetoggleComponent) {
+    this.stComponent = stComponent;
   }
-  */
+
+  getCurrentUserData() {
+    return this.currentUserData;
+  }
+
+  siginUp(name: string, email: string, password: string) {
+    const data: User = {
+      uid: email,
+      email: email,
+      password: password,
+      name: name,
+      gid: this.nullUserData.gid,
+      photoURL: this.nullUserData.photoURL,
+      nomi: this.nullUserData.nomi
+    };
+    this.createUserData(data);
+    this.currentUserData = this.getUserData(data);
+    this.stComponent.fireLogin();
+    return this.currentUserData;
+  }
 
   login(email: string, password: string) {
-    // return this.afAuth.auth
-    //   .signInWithEmailAndPassword(email, password)
-    //   .then(user => {
-    //     return this.updateUserData(user);
-    //   })
-    //   .catch(err => console.log(err));
-    //
-    ///
-    //
-    // const data: User = {
-    //   uid: email,
-    //   email: email,
-    //   password: password,
-    //   name: this.nullUserData.name,
-    //   gid: this.nullUserData.gid,
-    //   photoURL: this.nullUserData.photoURL,
-    //   nomi: this.nullUserData.nomi
-    // };
-    // var flg: boolean;
-    // this.user = this.getUserData(data);
-    // this.user.subscribe(res => {
-    //   if (res) {
-    //     flg = res.password === password;
-    //   }
-    // });
-    // this.user.subscribe(res =>
-    //   console.log("service" + res.email + "/" + res.password)
-    // );
-    // return flg ? this.user : of(this.nullUserData);
-
-    var users = this.afStore
-      .collection<User>("items", ref =>
-        ref.where("email", "==", email).where("password", "==", password)
-      )
-      .valueChanges();
-
-    users.subscribe(res => {
-      if (res.length == 1) {
-        this.user = this.getUserData(res[0]);
-      } else {
-        this.user = of(this.nullUserData);
-      }
-    });
-    return this.user;
+    const data: User = {
+      uid: email,
+      email: email,
+      password: password,
+      name: this.nullUserData.name,
+      gid: this.nullUserData.gid,
+      photoURL: this.nullUserData.photoURL,
+      nomi: this.nullUserData.nomi
+    };
+    this.currentUserData = this.getUserData(data);
+    this.stComponent.fireLogin();
+    return this.currentUserData;
   }
   /*
   logout() {
@@ -91,7 +76,7 @@ export class AuthService {
       this.router.navigate(["/login"]);
     });
   } */
-  public createUserData(user: User) {
+  private createUserData(user: User) {
     const data: User = {
       uid: user.uid,
       email: user.email,
@@ -116,13 +101,15 @@ export class AuthService {
     this.afStore.doc(`items/${user.uid}`).set(data);
   }
   public getUserData(user: User) {
-    this.user = this.afStore.doc<User>(`items/${user.uid}`).valueChanges();
-    this.user.subscribe(result => {
+    var rtnValue: Observable<User> = this.afStore
+      .doc<User>(`items/${user.uid}`)
+      .valueChanges();
+    rtnValue.subscribe(result => {
       if (result == null) {
-        this.user = of(this.nullUserData);
+        rtnValue = of(this.nullUserData);
       }
     });
-    return this.user;
+    return rtnValue;
   }
   public getUsersData(nomi: number) {
     return this.afStore

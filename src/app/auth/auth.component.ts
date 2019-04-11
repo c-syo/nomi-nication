@@ -13,8 +13,14 @@ export class AuthComponent {
   constructor(private authService: AuthService) {}
 
   reciver(email_: string, password_: string) {
-    this.email = email_;
-    this.password = password_;
-    this.authService.login(email_, password_);
+    this.authService.login(email_, password_).subscribe(result => {
+      if (result.uid === "") {
+        //ログイン失敗
+        console.log("ログイン失敗");
+      } else {
+        //ログイン成功
+        console.log("ログイン成功");
+      }
+    });
   }
 }

@@ -8,15 +8,24 @@ import { AuthService } from "../services/auth.service";
   styleUrls: ["./register.component.css"]
 })
 export class RegisterComponent {
+  /*
   email = "";
   password = "";
   name = "";
+  */
+  user: User;
 
   constructor(private authService: AuthService) {}
 
   reciver(email_: string, password_: string, name_: string) {
-    this.email = email_;
-    this.password = password_;
-    this.name = name_;
+    this.authService.siginUp(name_, email_, password_).subscribe(result => {
+      if (result.uid === "") {
+        //サインアップ失敗
+        console.log("サインアップ失敗");
+      } else {
+        //サインアップ成功
+        console.log("サインアップ成功");
+      }
+    });
   }
 }

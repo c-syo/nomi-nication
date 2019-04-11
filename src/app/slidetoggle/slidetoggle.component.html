@@ -4,7 +4,13 @@
       <h3 text-center>ENTRY HERE!</h3>
       <h6 text-center>エントリーして今日飲みに行く仲間を探しましょう！</h6>
       <label class="switch">
-        <input id="st" name="st" type="checkbox" [(ngModel)]="st" />
+        <input
+          id="st"
+          name="st"
+          type="checkbox"
+          [(ngModel)]="st"
+          (change)="onChanged($event)"
+        />
         <span class="slider round"></span>
       </label>
     </div>
